@@ -23,7 +23,8 @@ headers = {
         'RoomUserWalk': 1640,
         "RoomUserAction": 1631,
         "RoomUserShout": 1036,
-        "UserSaveLook": 3920
+        "UserSaveLook": 3920,
+        'OnUserEffect': 1167
     }
 
 }
@@ -141,6 +142,13 @@ def on_user_shout(msg):
         if index == users[username]:
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserShout'], message, bubble))
 
+def on_user_effect(msg):
+    if Copy and len(users) >= 1:
+        packet = msg.packet
+        (index, effect, idk) = packet.read('iii')
+        if index == users[username]:
+            extension.send_to_server(HPacket(headers['Outgoing']['RoomUserTalk'], f":enable {effect}", 12, 3))
+
 extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])
 extension.intercept(Direction.TO_SERVER, on_talk, headers['Outgoing']['RoomUserTalk'])
 extension.intercept(Direction.TO_CLIENT, on_user_typing, headers['Incoming']['UserTyping'])
@@ -149,3 +157,4 @@ extension.intercept(Direction.TO_CLIENT, on_user_move, headers['Incoming']['Room
 extension.intercept(Direction.TO_CLIENT, on_user_shout, headers['Incoming']['RoomUserShout'])
 extension.intercept(Direction.TO_CLIENT, on_user_change_figure, headers['Incoming']['UserSaveLook'])
 extension.intercept(Direction.TO_CLIENT, on_user_action, headers['Incoming']['RoomUserAction'])
+extension.intercept(Direction.TO_CLIENT, on_user_effect, headers['Incoming']['OnUserEffect'])
