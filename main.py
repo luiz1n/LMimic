@@ -13,7 +13,9 @@ headers = {
         'UserSaveLook': 2730,
         "RoomUserWalk": 3320,
         "RoomUserAction": 2456,
-        "RoomUserShout": 2085
+        "RoomUserShout": 2085,
+        "RoomUserDance": 2080,
+        "SaveMotto": 2228
     },
 
     'Incoming': {
@@ -23,6 +25,7 @@ headers = {
         'RoomUserWalk': 1640,
         "RoomUserAction": 1631,
         "RoomUserShout": 1036,
+        "RoomUserDance": 2233,
         "UserSaveLook": 3920,
         'OnUserEffect': 1167
     }
@@ -41,6 +44,9 @@ extension.start()
 
 users = {  }
 users_figure = {  }
+users_motto = {  }
+
+
 prefix_command = "!"
 aliases_command = ["copy", "mimic", "copiar"]
 Copy = False
@@ -52,6 +58,7 @@ def get_index(message):
         if user.entity_type == HEntityType.HABBO:
             users[user.name] = user.index
             users_figure[user.name] = user.figure_id
+            users_motto[user.name] = user.motto
 
 def send_message(message):
     extension.send_to_client(HPacket(headers['Incoming']['RoomUserTalk'], 9, f'[LMimic] ~ {message}', 0, 31, 0, 3))
@@ -86,6 +93,7 @@ def on_talk(msg):
                 if username in users:
                     send_message(f"Mimic Enabled -> {username}")
                     extension.send_to_server(HPacket(headers['Outgoing']['UserSaveLook'], "M", users_figure[username]))
+                    extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], users_motto[username]))
             else:
                 send_message(f"No users.")
 
@@ -149,6 +157,13 @@ def on_user_effect(msg):
         if index == users[username]:
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserTalk'], f":enable {effect}", 12, 3))
 
+def on_user_dance(msg):
+    if Copy and len(users) >= 1:
+        packet = msg.packet
+        (index, dance) = packet.read('ii')
+        if index == users[username]:
+            extension.send_to_server(HPacket(headers['Outgoing']['RoomUserDance'], dance))
+
 extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])
 extension.intercept(Direction.TO_SERVER, on_talk, headers['Outgoing']['RoomUserTalk'])
 extension.intercept(Direction.TO_CLIENT, on_user_typing, headers['Incoming']['UserTyping'])
@@ -158,3 +173,4 @@ extension.intercept(Direction.TO_CLIENT, on_user_shout, headers['Incoming']['Roo
 extension.intercept(Direction.TO_CLIENT, on_user_change_figure, headers['Incoming']['UserSaveLook'])
 extension.intercept(Direction.TO_CLIENT, on_user_action, headers['Incoming']['RoomUserAction'])
 extension.intercept(Direction.TO_CLIENT, on_user_effect, headers['Incoming']['OnUserEffect'])
+extension.intercept(Direction.TO_CLIENT, on_user_dance, headers['Incoming']['RoomUserDance'])
