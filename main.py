@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from g_python.gextension import Extension
 from g_python.hdirection import Direction
 from g_python.hpacket import HPacket
@@ -104,6 +106,7 @@ def on_user_talk(msg):
         packet = msg.packet
         (index, message, idk, bubble) = packet.read('isii')
         if index == users[username]:
+            message = str(message)
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserTalk'], message, bubble))
 
 
@@ -116,9 +119,6 @@ def on_user_typing(msg):
                 extension.send_to_server(HPacket(headers['Outgoing']['UserTyping']))
             else:
                 extension.send_to_server(HPacket(headers['Outgoing']['UserStopTyping']))
-
-def on_user_leave_room(msg):
-    packet = msg.packet
 
 def on_user_move(msg):
     if Copy and len(users) >= 1:
