@@ -17,7 +17,8 @@ headers = {
         "RoomUserAction": 2456,
         "RoomUserShout": 2085,
         "RoomUserDance": 2080,
-        "SaveMotto": 2228
+        "SaveMotto": 2228,
+        "RoomUserWhisper": 1543
     },
 
     'Incoming': {
@@ -29,7 +30,8 @@ headers = {
         "RoomUserShout": 1036,
         "RoomUserDance": 2233,
         "UserSaveLook": 3920,
-        'OnUserEffect': 1167
+        'OnUserEffect': 1167,
+        "RoomUserWhisper": 2704
     }
 
 }
@@ -164,6 +166,13 @@ def on_user_dance(msg):
         if index == users[username]:
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserDance'], dance))
 
+def on_user_whisper(msg):
+    if Copy and len(users) >= 1:
+        packet = msg.packet
+        (index, message, idk, idk, idk, idk) = packet.read('isiiii')
+        if index == users[username]:
+            extension.send_to_server(HPacket(headers['Outgoing']['RoomUserWhisper'], f'{username} {message}', 0))
+
 extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])
 extension.intercept(Direction.TO_SERVER, on_talk, headers['Outgoing']['RoomUserTalk'])
 extension.intercept(Direction.TO_CLIENT, on_user_typing, headers['Incoming']['UserTyping'])
@@ -174,3 +183,4 @@ extension.intercept(Direction.TO_CLIENT, on_user_change_figure, headers['Incomin
 extension.intercept(Direction.TO_CLIENT, on_user_action, headers['Incoming']['RoomUserAction'])
 extension.intercept(Direction.TO_CLIENT, on_user_effect, headers['Incoming']['OnUserEffect'])
 extension.intercept(Direction.TO_CLIENT, on_user_dance, headers['Incoming']['RoomUserDance'])
+extension.intercept(Direction.TO_CLIENT, on_user_whisper, headers['Incoming']['RoomUserWhisper'])
