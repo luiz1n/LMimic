@@ -63,7 +63,10 @@ def on_talk(msg):
     message = str(message)
 
     if message.startswith(f'{prefix_command}'):
-        command = re.search(f'{prefix_command}(.+) ', message).group(1)
+        try:
+            command = re.search(f'{prefix_command}(.+) ', message).group(1)
+        except:
+            command = message
     else:
         command = message
 
@@ -114,7 +117,7 @@ def on_user_move(msg):
         (idk, index, x, y, z, idk, idk, flatctrl) = packet.read('iiiiiiis')
 
         if index == users[username]:
-            extension.send_to_server(HPacket(3320, x, y))
+            extension.send_to_server(HPacket(headers['Outgoing']['RoomUserWalk'], x, y))
 
 def on_user_action(msg):
     if Copy and len(users) >= 1:
