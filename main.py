@@ -40,20 +40,10 @@ extension.start()
 
 users = {  }
 users_figure = {  }
-
 prefix_command = "!"
-
 aliases_command = ["copy", "mimic", "copiar"]
-
 Copy = False
 username = ""
-existsusername = False
-
-try:
-    users[username]
-    existsusername = True
-except KeyError:
-    existsusername = False
 
 def get_index(message):
     pkt = message.packet
@@ -66,16 +56,13 @@ def send_message(message):
     extension.send_to_client(HPacket(headers['Incoming']['RoomUserTalk'], 9, f'[LMimic] ~ {message}', 0, 31, 0, 3))
 
 def on_talk(msg):
-
     global username, Copy
     pkt = msg.packet
     (message, bubble) = pkt.read('si')
-
     msg.is_blocked = True
-
     message = str(message)
 
-    if message.startswith(f'{prefix_command} '):
+    if message.startswith(f'{prefix_command}'):
         command = re.search(f'{prefix_command}(.+) ', message).group(1)
     else:
         command = message
@@ -98,13 +85,10 @@ def on_talk(msg):
             else:
                 send_message(f"No users.")
 
-
-us = len(users) >= 1
-
 # --> Actions <--
 
 def on_user_talk(msg):
-    if Copy:
+    if Copy and len(users) >= 1:
         packet = msg.packet
         (index, message, idk, bubble) = packet.read('isii')
         if index == users[username]:
@@ -112,7 +96,7 @@ def on_user_talk(msg):
 
 
 def on_user_typing(msg):
-    if Copy:
+    if Copy and len(users) >= 1:
         packet = msg.packet
         (index, mode) = packet.read('ii')
         if index == users[username]:
@@ -125,7 +109,7 @@ def on_user_leave_room(msg):
     packet = msg.packet
 
 def on_user_move(msg):
-    if Copy:
+    if Copy and len(users) >= 1:
         packet = msg.packet
         (idk, index, x, y, z, idk, idk, flatctrl) = packet.read('iiiiiiis')
 
@@ -133,14 +117,14 @@ def on_user_move(msg):
             extension.send_to_server(HPacket(3320, x, y))
 
 def on_user_action(msg):
-    if Copy:
+    if Copy and len(users) >= 1:
         packet = msg.packet
         (index, action) = packet.read('ii')
         if index == users[username]:
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserAction'], action))
 
 def on_user_change_figure(msg):
-    if Copy:
+    if Copy and len(users) >= 1:
         packet = msg.packet
         (index, figure, gender, motto, idk) = packet.read('isssi')
         if index != -1:
@@ -148,7 +132,7 @@ def on_user_change_figure(msg):
                 extension.send_to_server(HPacket(headers['Outgoing']['UserSaveLook'], gender, figure))
 
 def on_user_shout(msg):
-    if Copy:
+    if Copy and len(users) >= 1: 
         packet = msg.packet
         (index, message, idk, bubble, idk, idk) = packet.read('isiiii')
         if index == users[username]:
