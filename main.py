@@ -35,7 +35,6 @@ headers = {
         "RoomUserWhisper": 2704,
         "RoomUserSign": 1640
     }
-
 }
 
 extension_info = {
@@ -102,7 +101,10 @@ def on_talk(msg):
                 if username in users:
                     send_message(f"Mimic Enabled -> {username}")
                     extension.send_to_server(HPacket(headers['Outgoing']['UserSaveLook'], "M", users_figure[username]))
-                    extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], users_motto[username]))
+
+                    if users_motto[username] != "":
+                        extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], users_motto[username]))
+                        
                 else:
                     send_message("User not found.")
             else:
