@@ -80,7 +80,10 @@ def on_talk(msg):
         try:
             command = re.search(f'{prefix_command}(.+) ', message).group(1)
         except:
-            command = message
+            try:
+                command = re.search(f'{prefix_command}(.+)', message).group(1)
+            except:
+                command = message
     else:
         command = message
 
@@ -90,7 +93,7 @@ def on_talk(msg):
     if command in aliases_command:
         username = message.replace(f'{prefix_command}{command} ', "")
         if Copy == True:
-            if command == f'{prefix_command}{command}':
+            if message == f'{prefix_command}{command}':
                 Copy = False
                 send_message("Mimic Disabled.")
         else:
@@ -100,6 +103,8 @@ def on_talk(msg):
                     send_message(f"Mimic Enabled -> {username}")
                     extension.send_to_server(HPacket(headers['Outgoing']['UserSaveLook'], "M", users_figure[username]))
                     extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], users_motto[username]))
+                else:
+                    send_message("User not found.")
             else:
                 send_message(f"No users.")
     else:
@@ -107,6 +112,8 @@ def on_talk(msg):
             if Copy:
                 Copy = False
                 send_message(f'Mimic Disabled.')
+            else:
+                send_message(f'Mimic already is disabled.')
 
 # --> Actions <--
 
