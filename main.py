@@ -18,7 +18,8 @@ headers = {
         "RoomUserShout": 2085,
         "RoomUserDance": 2080,
         "SaveMotto": 2228,
-        "RoomUserWhisper": 1543
+        "RoomUserWhisper": 1543,
+        "RoomUserSign": 1975
     },
 
     'Incoming': {
@@ -31,7 +32,8 @@ headers = {
         "RoomUserDance": 2233,
         "UserSaveLook": 3920,
         'OnUserEffect': 1167,
-        "RoomUserWhisper": 2704
+        "RoomUserWhisper": 2704,
+        "RoomUserSign": 1640
     }
 
 }
@@ -88,7 +90,7 @@ def on_talk(msg):
     if command in aliases_command:
         username = message.replace(f'{prefix_command}{command} ', "")
         if Copy == True:
-            if username == f'{prefix_command}{command}':
+            if command == f'{prefix_command}{command}':
                 Copy = False
                 send_message("Mimic Disabled.")
         else:
@@ -100,6 +102,11 @@ def on_talk(msg):
                     extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], users_motto[username]))
             else:
                 send_message(f"No users.")
+    else:
+        if command == f"{prefix_command}stop":
+            if Copy:
+                Copy = False
+                send_message(f'Mimic Disabled.')
 
 # --> Actions <--
 
@@ -110,7 +117,6 @@ def on_user_talk(msg):
         if index == users[username]:
             message = str(message)
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserTalk'], message, bubble))
-
 
 def on_user_typing(msg):
     if Copy and len(users) >= 1:
@@ -173,14 +179,26 @@ def on_user_whisper(msg):
         if index == users[username]:
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserWhisper'], f'{username} {message}', 0))
 
-extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])
-extension.intercept(Direction.TO_SERVER, on_talk, headers['Outgoing']['RoomUserTalk'])
-extension.intercept(Direction.TO_CLIENT, on_user_typing, headers['Incoming']['UserTyping'])
-extension.intercept(Direction.TO_CLIENT, on_user_talk, headers['Incoming']['RoomUserTalk'])
-extension.intercept(Direction.TO_CLIENT, on_user_move, headers['Incoming']['RoomUserWalk'])
-extension.intercept(Direction.TO_CLIENT, on_user_shout, headers['Incoming']['RoomUserShout'])
-extension.intercept(Direction.TO_CLIENT, on_user_change_figure, headers['Incoming']['UserSaveLook'])
-extension.intercept(Direction.TO_CLIENT, on_user_action, headers['Incoming']['RoomUserAction'])
-extension.intercept(Direction.TO_CLIENT, on_user_effect, headers['Incoming']['OnUserEffect'])
-extension.intercept(Direction.TO_CLIENT, on_user_dance, headers['Incoming']['RoomUserDance'])
-extension.intercept(Direction.TO_CLIENT, on_user_whisper, headers['Incoming']['RoomUserWhisper'])
+def on_user_sign(msg):
+    packet = msg.packet
+    (idk, index, idk, idk, idk, idk, idk, flatctrl_sign) = packet.read('iiiisiis')
+    if flatctrl_sign.__contains__("sign"):
+        if index == users[username]:
+            sign = re.match("/flatctrl 4/sign (.+)//", str(flatctrl_sign)).group(1)
+            extension.send_to_server(HPacket(headers['Outgoing']['RoomUserSign'], int(sign)))
+
+##############################################################################################################
+#                                LMimic made by Luiz1n                                                       #
+extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])                        #
+extension.intercept(Direction.TO_SERVER, on_talk, headers['Outgoing']['RoomUserTalk'])                       #
+extension.intercept(Direction.TO_CLIENT, on_user_typing, headers['Incoming']['UserTyping'])                  #
+extension.intercept(Direction.TO_CLIENT, on_user_talk, headers['Incoming']['RoomUserTalk'])                  #
+extension.intercept(Direction.TO_CLIENT, on_user_move, headers['Incoming']['RoomUserWalk'])                  # 
+extension.intercept(Direction.TO_CLIENT, on_user_shout, headers['Incoming']['RoomUserShout'])                #
+extension.intercept(Direction.TO_CLIENT, on_user_change_figure, headers['Incoming']['UserSaveLook'])         #
+extension.intercept(Direction.TO_CLIENT, on_user_action, headers['Incoming']['RoomUserAction'])              #
+extension.intercept(Direction.TO_CLIENT, on_user_effect, headers['Incoming']['OnUserEffect'])                #
+extension.intercept(Direction.TO_CLIENT, on_user_dance, headers['Incoming']['RoomUserDance'])                #
+extension.intercept(Direction.TO_CLIENT, on_user_whisper, headers['Incoming']['RoomUserWhisper'])            #
+extension.intercept(Direction.TO_CLIENT, on_user_sign, headers['Incoming']['RoomUserSign'])                  #
+##############################################################################################################
