@@ -30,7 +30,7 @@ headers = {
         "RoomUserAction": 1631,
         "RoomUserShout": 1036,
         "RoomUserDance": 2233,
-        "UserSaveLook": 3920,
+        "UserUpdateAvatar": 3920,
         'OnUserEffect': 1167,
         "RoomUserWhisper": 2704,
         "RoomUserSign": 1640
@@ -104,7 +104,7 @@ def on_talk(msg):
 
                     if users_motto[username] != "":
                         extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], users_motto[username]))
-                        
+
                 else:
                     send_message("User not found.")
             else:
@@ -152,13 +152,15 @@ def on_user_action(msg):
         if index == users[username]:
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserAction'], action))
 
-def on_user_change_figure(msg):
+def on_user_update_avatar(msg):
+
     if Copy and len(users) >= 1:
         packet = msg.packet
-        (index, figure, gender, motto, idk) = packet.read('isssi')
+        (index, figure_string, gender, motto, idk) = packet.read('isssi')
         if index != -1:
             if index == users[username]:
-                extension.send_to_server(HPacket(headers['Outgoing']['UserSaveLook'], gender, figure))
+                extension.send_to_server(HPacket(headers['Outgoing']['SaveMotto'], motto))
+                extension.send_to_server(HPacket(headers['Outgoing']['UserSaveLook'], gender, figure_string))
 
 def on_user_shout(msg):
     if Copy and len(users) >= 1: 
@@ -199,13 +201,13 @@ def on_user_sign(msg):
 
 ##############################################################################################################
 #                                LMimic made by Luiz1n                                                       #
-extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])                        #
 extension.intercept(Direction.TO_SERVER, on_talk, headers['Outgoing']['RoomUserTalk'])                       #
+extension.intercept(Direction.TO_CLIENT, get_index, headers['Incoming']['RoomUsers'])                        #
 extension.intercept(Direction.TO_CLIENT, on_user_typing, headers['Incoming']['UserTyping'])                  #
 extension.intercept(Direction.TO_CLIENT, on_user_talk, headers['Incoming']['RoomUserTalk'])                  #
 extension.intercept(Direction.TO_CLIENT, on_user_move, headers['Incoming']['RoomUserWalk'])                  # 
 extension.intercept(Direction.TO_CLIENT, on_user_shout, headers['Incoming']['RoomUserShout'])                #
-extension.intercept(Direction.TO_CLIENT, on_user_change_figure, headers['Incoming']['UserSaveLook'])         #
+extension.intercept(Direction.TO_CLIENT, on_user_update_avatar, headers['Incoming']['UserUpdateAvatar'])     #
 extension.intercept(Direction.TO_CLIENT, on_user_action, headers['Incoming']['RoomUserAction'])              #
 extension.intercept(Direction.TO_CLIENT, on_user_effect, headers['Incoming']['OnUserEffect'])                #
 extension.intercept(Direction.TO_CLIENT, on_user_dance, headers['Incoming']['RoomUserDance'])                #
