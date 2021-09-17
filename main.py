@@ -180,12 +180,13 @@ def on_user_whisper(msg):
             extension.send_to_server(HPacket(headers['Outgoing']['RoomUserWhisper'], f'{username} {message}', 0))
 
 def on_user_sign(msg):
-    packet = msg.packet
-    (idk, index, idk, idk, idk, idk, idk, flatctrl_sign) = packet.read('iiiisiis')
-    if flatctrl_sign.__contains__("sign"):
-        if index == users[username]:
-            sign = re.match("/flatctrl 4/sign (.+)//", str(flatctrl_sign)).group(1)
-            extension.send_to_server(HPacket(headers['Outgoing']['RoomUserSign'], int(sign)))
+    if Copy and len(users) >= 1:
+        packet = msg.packet
+        (idk, index, idk, idk, idk, idk, idk, flatctrl_sign) = packet.read('iiiisiis')
+        if flatctrl_sign.__contains__("sign"):
+            if index == users[username]:
+                sign = re.match("/flatctrl 4/sign (.+)//", str(flatctrl_sign)).group(1)
+                extension.send_to_server(HPacket(headers['Outgoing']['RoomUserSign'], int(sign)))
 
 ##############################################################################################################
 #                                LMimic made by Luiz1n                                                       #
